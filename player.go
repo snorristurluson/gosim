@@ -36,7 +36,12 @@ func (player *Player) HandleCommand() error {
 	}
 
 	if cmd.Command == "settargetlocation" {
-		// todo
+		var params ParamsReceivedSetTargetLocation
+		err := json.Unmarshal(cmd.Params, &params)
+		if err != nil {
+			fmt.Printf("Error unmarshaling params: %v", err)
+		}
+		player.Ship.SetTargetLocation(params.Location)
 		player.Connection.Write([]byte(`{"result": "ok"}` + "\n"))
 	} else {
 		fmt.Printf("Error reading command: %v\n", err)
@@ -49,7 +54,6 @@ func (player *Player) HandleCommand() error {
 
 func (player *Player) Loop() {
 	for {
-		fmt.Printf("Waiting for command\n")
 		err := player.HandleCommand()
 		if err == io.EOF {
 			fmt.Printf("Player connection %v lost\n", player.UserId)

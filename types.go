@@ -7,6 +7,10 @@ type CommandReceived struct {
 	Params json.RawMessage `json:"params"`
 }
 
+type ParamsReceivedSetTargetLocation struct {
+	Location Vector3 `json:"location"`
+}
+
 type Command struct {
 	Command string `json:"command"`
 	Params interface{} `json:"params"`
@@ -32,7 +36,7 @@ type Vector3 struct {
 
 type ShipData struct {
 	Owner    int64 `json:"owner"`
-	Type     int64 `json:"type"`
+	TypeId     int64 `json:"typeid"`
 	Position Vector3 `json:"position"`
 	InRange  []int64 `json:"inrange"`
 }
@@ -68,7 +72,7 @@ func NewRemoveShipCommand(owner int64) (*Command) {
 }
 
 type ParamsSetShipTargetLocation struct {
-	ShipId int64 `json:"shipid`
+	ShipId int64 `json:"shipid"`
 	Location Vector3 `json:"location"`
 }
 
@@ -93,4 +97,8 @@ func NewStepSimulationCommand(timestep float32) (*Command) {
 
 func NewGetStateCommand() (*Command) {
 	return NewCommand("getstate", nil)
+}
+
+func NewSetMainCommand() (*Command) {
+	return NewCommand("setmain", nil)
 }

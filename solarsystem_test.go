@@ -33,7 +33,7 @@ func TestCanAddShipToSolarsystem(t *testing.T) {
 
 	conn.Writer.Flush()
 	result := outputBuffer.String()
-	expected := `{"Command":"addship","Params":{"Owner":1,"TypeId":0,"Position":{"X":0,"Y":0,"Z":0}}}` + "\n"
+	expected := `{"command":"addship","params":{"owner":1,"typeid":0,"position":{"x":0,"y":0,"z":0}}}` + "\n"
 	if result != expected {
 		t.Errorf("Expected '%v', got '%v'", expected, result)
 	}
@@ -59,7 +59,7 @@ func TestCanRemoveShipFromSolarsystem(t *testing.T) {
 	conn.Writer.Flush()
 	result := outputBuffer.String()
 
-	expected := `{"Command":"removeship","Params":{"Owner":1}}` + "\n"
+	expected := `{"command":"removeship","params":{"owner":1}}` + "\n"
 	if result != expected {
 		t.Errorf("Expected '%v', got '%v'", expected, result)
 	}
@@ -94,8 +94,8 @@ func TestSimpleTick(t *testing.T) {
 	conn.Writer.Flush()
 	result := outputBuffer.String()
 
-	expected := `{"Command":"stepsimulation","Params":{"Timestep":1}}` + "\n"
-	expected += `{"Command":"getstate","Params":null}` + "\n"
+	expected := `{"command":"stepsimulation","params":{"timestep":1}}` + "\n"
+	expected += `{"command":"getstate","params":null}` + "\n"
 	if result != expected {
 		t.Errorf("Expected '%v', got '%v'", expected, result)
 	}

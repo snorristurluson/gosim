@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 	"sync"
+	"math/rand"
 )
 
 type Login struct {
@@ -19,8 +20,14 @@ type GlobalState struct {
 	solarsystemsMutex sync.Mutex
 }
 
+func NewGlobalState() (*GlobalState){
+	return &GlobalState{
+		solarsystems: make(map[string]*Solarsystem),
+	}
+}
+
 func main() {
-	globalState := new(GlobalState)
+	globalState := NewGlobalState()
 	go globalState.listenForConnections()
 
 	exitSignal := make(chan os.Signal)
@@ -71,8 +78,13 @@ func (gs *GlobalState) addPlayer(user int64, conn net.Conn) {
 		conn.Close()
 		return
 	}
+
+	// Todo: ship position should be looked up
+	ship := player.GetShip()
+	ship.SetPosition(Vector3{X:rand.Float64()*5000.0-2500.0, Y:rand.Float64()*5000.0-2500.0, Z: 0})
 	ss.AddShip(player.GetShip())
 	player.Loop()
+	ss.RemoveShip(player.GetShip())
 }
 
 func (gs *GlobalState) findSolarsystemForPlayer(player *Player) (*Solarsystem, error) {
@@ -80,19 +92,17 @@ func (gs *GlobalState) findSolarsystemForPlayer(player *Player) (*Solarsystem, e
 	defer gs.solarsystemsMutex.Unlock()
 
 	// Todo: look up solar system where player is located
-	ss, ok := gs.solarsystems["ex1"]
+	name := "ex1"
+	ss, ok := gs.solarsystems[name]
 	if !ok {
-		ss = NewSolarsystem("ex1")
+		ss = NewSolarsystem(name)
 		conn, err := net.Dial("tcp", ":4041")
 		if err != nil {
 			return nil, err
 		}
+		gs.solarsystems[name] = ss
 		ss.SetConnection(conn)
-		go ss.Loop()
 	}
+	ss.Start()
 	return ss, nil
-}
-
-func (gs *GlobalState) tickSolarsystems() {
-
 }

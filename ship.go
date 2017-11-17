@@ -23,3 +23,8 @@ func (ship *Ship) SetTargetLocation(loc Vector3) {
 	cmd := NewSetShipTargetLocationCommand(ship.Owner, loc)
 	ship.commands = append(ship.commands, cmd)
 }
+
+// This should only be called before the ship is added to the solar system.
+func (ship *Ship) SetPosition(pos Vector3) {
+	ship.Position = pos
+}
