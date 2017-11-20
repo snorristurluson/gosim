@@ -40,7 +40,7 @@ func (ss *Solarsystem) SetConnection(conn io.ReadWriter) {
 }
 
 func (ss *Solarsystem) sendCommand(cmd *Command) (*CommandResult, error) {
-	fmt.Printf("Sending command: %v\n", cmd.Command)
+	// fmt.Printf("Sending command: %v\n", cmd.Command)
 
 	ss.encoder.Encode(cmd)
 
@@ -78,12 +78,7 @@ func (ss *Solarsystem) GetShipCount() int {
 func (ss *Solarsystem) Tick(dt int) error {
 	ss.HandleQueuedCommands()
 
-	for _, ship := range (ss.Ships) {
-		cmds := ship.GetCommands()
-		for _, cmd := range (cmds) {
-			ss.sendCommand(cmd)
-		}
-	}
+	ss.sendQueuedShipCommands()
 
 	cmd := NewStepSimulationCommand(float32(dt) / 1000.0)
 	result, err := ss.sendCommand(cmd)
@@ -102,9 +97,15 @@ func (ss *Solarsystem) Tick(dt int) error {
 	var state State
 	json.Unmarshal(result.State, &state)
 
+	ss.sendStateToPlayers(state)
+
+	ss.HandleQueuedCommands()
+
+	return nil
+}
+func (ss *Solarsystem) sendStateToPlayers(state State) {
 	ss.shipsMutex.Lock()
 	defer ss.shipsMutex.Unlock()
-
 	var wg sync.WaitGroup
 	for _, ship := range (ss.Ships) {
 		wg.Add(1)
@@ -113,10 +114,17 @@ func (ss *Solarsystem) Tick(dt int) error {
 			ship.SendState(&state)
 		}()
 	}
+}
+func (ss *Solarsystem)sendQueuedShipCommands() {
+	ss.shipsMutex.Lock()
+	defer ss.shipsMutex.Unlock()
 
-	ss.HandleQueuedCommands()
-
-	return nil
+	for _, ship := range (ss.Ships) {
+		cmds := ship.GetCommands()
+		for _, cmd := range (cmds) {
+			ss.sendCommand(cmd)
+		}
+	}
 }
 
 func (ss *Solarsystem) HandleQueuedCommands() {
@@ -140,7 +148,7 @@ func (ss *Solarsystem) Loop() error {
 	ss.SetConnection(conn)
 
 	err = nil
-	tickInterval := 1000 * time.Millisecond
+	tickInterval := 250 * time.Millisecond
 	tickCounter := int64(0)
 	for {
 		start := time.Now()
