@@ -14,12 +14,11 @@ func TestCanCreatePlayer(t *testing.T) {
 	}
 }
 
-func TestNewlyCreatedPlayerHasShip(t *testing.T) {
+func TestNewlyCreatedPlayerHasNoShip(t *testing.T) {
 	player := NewPlayer(1, nil)
 	ship := player.GetShip()
-	if ship == nil {
-		t.Log("Ship is null")
-		t.Fail()
+	if ship != nil {
+		t.Errorf("Ship is not null")
 	}
 }
 
@@ -30,6 +29,8 @@ func TestPlayerHandlesSetTargetLocation(t *testing.T) {
 	outputBuffer := new(bytes.Buffer)
 	conn := bufio.NewReadWriter(bufio.NewReader(inputBuffer), bufio.NewWriter(outputBuffer))
 	player := NewPlayer(1, conn)
+	ship := NewShip(1)
+	player.SetShip(ship)
 	player.HandleCommand()
 	conn.Writer.Flush()
 	expected := `{"result": "ok"}` + "\n"

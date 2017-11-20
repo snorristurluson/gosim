@@ -79,8 +79,11 @@ func (gs *GlobalState) addPlayer(user int64, conn net.Conn) {
 		return
 	}
 
+	ship := NewShip(user)
+	ship.SetConnection(conn)
+	player.SetShip(ship)
+
 	// Todo: ship position should be looked up
-	ship := player.GetShip()
 	ship.SetPosition(Vector3{X:rand.Float64()*5000.0-2500.0, Y:rand.Float64()*5000.0-2500.0, Z: 0})
 	ss.AddShip(player.GetShip())
 	player.Loop()
@@ -96,12 +99,7 @@ func (gs *GlobalState) findSolarsystemForPlayer(player *Player) (*Solarsystem, e
 	ss, ok := gs.solarsystems[name]
 	if !ok {
 		ss = NewSolarsystem(name)
-		conn, err := net.Dial("tcp", ":4041")
-		if err != nil {
-			return nil, err
-		}
 		gs.solarsystems[name] = ss
-		ss.SetConnection(conn)
 	}
 	ss.Start()
 	return ss, nil

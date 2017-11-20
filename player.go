@@ -17,8 +17,11 @@ func NewPlayer(user int64, conn io.ReadWriter) *Player {
 	return &Player{
 		UserId:     user,
 		Connection: conn,
-		Ship:       NewShip(user),
 	}
+}
+
+func (player *Player) SetShip(ship *Ship) {
+	player.Ship = ship
 }
 
 func (player *Player) GetShip() *Ship {

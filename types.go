@@ -45,6 +45,12 @@ type State struct {
 	Ships map[string]ShipData `json:"ships"`
 }
 
+func NewState() (*State) {
+	return &State {
+		Ships: make(map[string]ShipData),
+	}
+}
+
 type ParamsAddShip struct {
 	Owner int64 `json:"owner"`
 	TypeId int64 `json:"typeid"`

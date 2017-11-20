@@ -25,8 +25,12 @@ func TestCanAddShipToSolarsystem(t *testing.T) {
 
 	ss.SetConnection(conn)
 
+	conn.Writer.Flush()
+	outputBuffer.Reset()
+
 	var ship = NewShip(1)
 	ss.AddShip(ship)
+	ss.HandleQueuedCommands()
 	if ss.GetShipCount() != 1 {
 		t.Fail()
 	}
@@ -50,11 +54,13 @@ func TestCanRemoveShipFromSolarsystem(t *testing.T) {
 
 	var ship = NewShip(1)
 	ss.AddShip(ship)
+	ss.HandleQueuedCommands()
 
 	conn.Writer.Flush()
 	outputBuffer.Reset()
 
 	ss.RemoveShip(ship)
+	ss.HandleQueuedCommands()
 
 	conn.Writer.Flush()
 	result := outputBuffer.String()
@@ -76,18 +82,20 @@ func TestSimpleTick(t *testing.T) {
 	outputBuffer := new(bytes.Buffer)
 	conn := bufio.NewReadWriter(bufio.NewReader(inputBuffer), bufio.NewWriter(outputBuffer))
 
+	inputBuffer.WriteString(`{"result":"ok"}` + "\n")
 	ss.SetConnection(conn)
 
+	inputBuffer.WriteString(`{"result":"ok"}` + "\n")
 	var ship = NewShip(1)
 	ss.AddShip(ship)
+	ss.HandleQueuedCommands()
 
 	conn.Writer.Flush()
 	outputBuffer.Reset()
 
-	inputBuffer.WriteString(`{"Result":"ok"}` + "\n")
-	inputBuffer.WriteString(`{"Result":"ok"}` + "\n")
+	inputBuffer.WriteString(`{"result":"ok"}{"state":{"ships":{"ship_1":{"owner":1,"type":0,"position":{"x":523.3014398980977,"y":2202.5454402250627,"z":0.0},"inrange":[]}}},"result":"state"}`)
 
-	err := ss.Tick(1)
+	err := ss.Tick(1000)
 	if err != nil {
 		t.Errorf("Got error: %v", err)
 	}
