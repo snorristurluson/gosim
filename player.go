@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 )
 
 type Player struct {
@@ -49,7 +49,7 @@ func (player *Player) HandleCommand() error {
 	} else {
 		fmt.Printf("Error reading command: %v\n", err)
 		player.Connection.Write([]byte(`{"result": "error"}` + "\n"))
-		return errors.New("Unknown command")
+		return errors.New("unknown command")
 	}
 
 	return nil
@@ -64,4 +64,3 @@ func (player *Player) Loop() {
 		}
 	}
 }
-

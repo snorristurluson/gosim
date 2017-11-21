@@ -1,12 +1,12 @@
 package main
 
 import (
-	"io"
 	"encoding/json"
+	"fmt"
+	"io"
+	"net"
 	"sync"
 	"time"
-	"fmt"
-	"net"
 )
 
 type Solarsystem struct {
@@ -16,7 +16,7 @@ type Solarsystem struct {
 	connection io.ReadWriter
 	encoder    *json.Encoder
 	decoder    *json.Decoder
-	sendQueue chan *Command
+	sendQueue  chan *Command
 
 	shipsMutex     sync.Mutex
 	isTicking      bool
@@ -107,7 +107,7 @@ func (ss *Solarsystem) sendStateToPlayers(state State) {
 	ss.shipsMutex.Lock()
 	defer ss.shipsMutex.Unlock()
 	var wg sync.WaitGroup
-	for _, ship := range (ss.Ships) {
+	for _, ship := range ss.Ships {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -115,13 +115,13 @@ func (ss *Solarsystem) sendStateToPlayers(state State) {
 		}()
 	}
 }
-func (ss *Solarsystem)sendQueuedShipCommands() {
+func (ss *Solarsystem) sendQueuedShipCommands() {
 	ss.shipsMutex.Lock()
 	defer ss.shipsMutex.Unlock()
 
-	for _, ship := range (ss.Ships) {
+	for _, ship := range ss.Ships {
 		cmds := ship.GetCommands()
-		for _, cmd := range (cmds) {
+		for _, cmd := range cmds {
 			ss.sendCommand(cmd)
 		}
 	}
