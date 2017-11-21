@@ -103,6 +103,7 @@ func (ss *Solarsystem) Tick(dt int) error {
 
 	return nil
 }
+
 func (ss *Solarsystem) sendStateToPlayers(state State) {
 	ss.shipsMutex.Lock()
 	defer ss.shipsMutex.Unlock()
@@ -114,7 +115,9 @@ func (ss *Solarsystem) sendStateToPlayers(state State) {
 			ship.SendState(&state)
 		}()
 	}
+	wg.Wait()
 }
+
 func (ss *Solarsystem) sendQueuedShipCommands() {
 	ss.shipsMutex.Lock()
 	defer ss.shipsMutex.Unlock()
