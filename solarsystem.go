@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/snorristurluson/exsim_commands"
 	"io"
 	"net"
 	"sync"
@@ -16,7 +17,7 @@ type Solarsystem struct {
 	connection io.ReadWriter
 	encoder    *json.Encoder
 	decoder    *json.Decoder
-	sendQueue  chan *Command
+	sendQueue  chan *exsim_commands.Command
 
 	shipsMutex     sync.Mutex
 	isTicking      bool
@@ -28,7 +29,7 @@ func NewSolarsystem(name string) *Solarsystem {
 		Name:      name,
 		Ships:     make(map[int64]*Ship),
 		isTicking: false,
-		sendQueue: make(chan *Command, 10),
+		sendQueue: make(chan *exsim_commands.Command, 10),
 	}
 }
 
@@ -36,15 +37,15 @@ func (ss *Solarsystem) SetConnection(conn io.ReadWriter) {
 	ss.connection = conn
 	ss.decoder = json.NewDecoder(ss.connection)
 	ss.encoder = json.NewEncoder(ss.connection)
-	ss.sendCommand(NewSetMainCommand())
+	ss.sendCommand(exsim_commands.NewSetMainCommand())
 }
 
-func (ss *Solarsystem) sendCommand(cmd *Command) (*CommandResult, error) {
+func (ss *Solarsystem) sendCommand(cmd *exsim_commands.Command) (*exsim_commands.CommandResult, error) {
 	// fmt.Printf("Sending command: %v\n", cmd.Command)
 
 	ss.encoder.Encode(cmd)
 
-	var result CommandResult
+	var result exsim_commands.CommandResult
 	err := ss.decoder.Decode(&result)
 	if err != nil {
 		return nil, err
@@ -57,7 +58,7 @@ func (ss *Solarsystem) AddShip(ship *Ship) {
 	ss.Ships[ship.Owner] = ship
 	ss.shipsMutex.Unlock()
 
-	cmd := NewAddShipCommand(ship.Owner, ship.TypeId, ship.Position)
+	cmd := exsim_commands.NewAddShipCommand(ship.Owner, ship.TypeId, ship.Position)
 
 	ss.sendQueue <- cmd
 }
@@ -67,7 +68,7 @@ func (ss *Solarsystem) RemoveShip(ship *Ship) {
 	delete(ss.Ships, ship.Owner)
 	ss.shipsMutex.Unlock()
 
-	cmd := NewRemoveShipCommand(ship.Owner)
+	cmd := exsim_commands.NewRemoveShipCommand(ship.Owner)
 	ss.sendQueue <- cmd
 }
 
@@ -80,21 +81,21 @@ func (ss *Solarsystem) Tick(dt int) error {
 
 	ss.sendQueuedShipCommands()
 
-	cmd := NewStepSimulationCommand(float32(dt) / 1000.0)
+	cmd := exsim_commands.NewStepSimulationCommand(float32(dt) / 1000.0)
 	result, err := ss.sendCommand(cmd)
 	if err != nil {
 		fmt.Printf("Error in stepsimulation: %v\n", err)
 		return err
 	}
 
-	cmd = NewGetStateCommand()
+	cmd = exsim_commands.NewGetStateCommand()
 	result, err = ss.sendCommand(cmd)
 	if err != nil {
 		fmt.Printf("Error in getstate: %v\n", err)
 		return err
 	}
 
-	var state State
+	var state exsim_commands.State
 	json.Unmarshal(result.State, &state)
 
 	ss.sendStateToPlayers(state)
@@ -104,16 +105,16 @@ func (ss *Solarsystem) Tick(dt int) error {
 	return nil
 }
 
-func (ss *Solarsystem) sendStateToPlayers(state State) {
+func (ss *Solarsystem) sendStateToPlayers(state exsim_commands.State) {
 	ss.shipsMutex.Lock()
 	defer ss.shipsMutex.Unlock()
 	var wg sync.WaitGroup
 	for _, ship := range ss.Ships {
 		wg.Add(1)
-		go func() {
+		go func(s *Ship) {
 			defer wg.Done()
-			ship.SendState(&state)
-		}()
+			s.SendState(&state)
+		}(ship)
 	}
 	wg.Wait()
 }

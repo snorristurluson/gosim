@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/snorristurluson/exsim_commands"
+	"math/rand"
 	"net"
 	"os"
 	"os/signal"
-	"syscall"
 	"sync"
-	"math/rand"
+	"syscall"
 )
 
 type Login struct {
@@ -16,11 +17,11 @@ type Login struct {
 }
 
 type GlobalState struct {
-	solarsystems map[string]*Solarsystem
+	solarsystems      map[string]*Solarsystem
 	solarsystemsMutex sync.Mutex
 }
 
-func NewGlobalState() (*GlobalState){
+func NewGlobalState() *GlobalState {
 	return &GlobalState{
 		solarsystems: make(map[string]*Solarsystem),
 	}
@@ -84,7 +85,7 @@ func (gs *GlobalState) addPlayer(user int64, conn net.Conn) {
 	player.SetShip(ship)
 
 	// Todo: ship position should be looked up
-	ship.SetPosition(Vector3{X:rand.Float64()*5000.0-2500.0, Y:rand.Float64()*5000.0-2500.0, Z: 0})
+	ship.SetPosition(exsim_commands.Vector3{X: rand.Float64()*5000.0 - 2500.0, Y: rand.Float64()*5000.0 - 2500.0, Z: 0})
 	ss.AddShip(player.GetShip())
 	player.Loop()
 	ss.RemoveShip(player.GetShip())

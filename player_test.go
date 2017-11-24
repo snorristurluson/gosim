@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/snorristurluson/exsim_commands"
 	"testing"
 )
 
@@ -23,7 +24,7 @@ func TestNewlyCreatedPlayerHasNoShip(t *testing.T) {
 }
 
 func TestPlayerHandlesSetTargetLocation(t *testing.T) {
-	loc := Vector3{X: 10, Y: 20, Z: 30}
+	loc := exsim_commands.Vector3{X: 10, Y: 20, Z: 30}
 	input := fmt.Sprintf(`{"command": "settargetlocation", "params": { "location": {"x": %v, "y": %v, "z": %v}}}`+"\n", loc.X, loc.Y, loc.Z)
 	inputBuffer := bytes.NewBufferString(input)
 	outputBuffer := new(bytes.Buffer)

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"testing"
-	"bytes"
 	"bufio"
+	"bytes"
+	"github.com/snorristurluson/exsim_commands"
+	"testing"
 )
 
 func TestCanCreateShip(t *testing.T) {
@@ -15,7 +16,7 @@ func TestCanCreateShip(t *testing.T) {
 
 func TestSetTargetLocationCreatesCommand(t *testing.T) {
 	ship := NewShip(1)
-	loc := Vector3{X: 10, Y: 20, Z: 30}
+	loc := exsim_commands.Vector3{X: 10, Y: 20, Z: 30}
 	ship.SetTargetLocation(loc)
 
 	cmds := ship.GetCommands()
@@ -42,24 +43,24 @@ func TestShipSendState(t *testing.T) {
 	ship := NewShip(1)
 	ship.SetConnection(conn)
 
-	state := NewState()
-	state.Ships["ship_1"] = ShipData {
-		Owner: 1,
-		TypeId: 1,
-		Position: Vector3{X:1, Y:2, Z:3},
-		InRange: []int64{2, 3},
+	state := exsim_commands.NewState()
+	state.Ships["ship_1"] = exsim_commands.ShipData{
+		Owner:    1,
+		TypeId:   1,
+		Position: exsim_commands.Vector3{X: 1, Y: 2, Z: 3},
+		InRange:  []int64{2, 3},
 	}
-	state.Ships["ship_2"] = ShipData {
-		Owner: 2,
-		TypeId: 2,
-		Position: Vector3{X:4, Y:5, Z:6},
-		InRange: []int64{1, 3},
+	state.Ships["ship_2"] = exsim_commands.ShipData{
+		Owner:    2,
+		TypeId:   2,
+		Position: exsim_commands.Vector3{X: 4, Y: 5, Z: 6},
+		InRange:  []int64{1, 3},
 	}
-	state.Ships["ship_3"] = ShipData {
-		Owner: 3,
-		TypeId: 3,
-		Position: Vector3{X:7, Y:8, Z:9},
-		InRange: []int64{1, 2},
+	state.Ships["ship_3"] = exsim_commands.ShipData{
+		Owner:    3,
+		TypeId:   3,
+		Position: exsim_commands.Vector3{X: 7, Y: 8, Z: 9},
+		InRange:  []int64{1, 2},
 	}
 
 	ship.SendState(state)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/snorristurluson/exsim_commands"
 	"io"
 )
 
@@ -30,7 +31,7 @@ func (player *Player) GetShip() *Ship {
 
 func (player *Player) HandleCommand() error {
 	decoder := json.NewDecoder(player.Connection)
-	var cmd CommandReceived
+	var cmd exsim_commands.CommandReceived
 	err := decoder.Decode(&cmd)
 	if err != nil {
 		fmt.Printf("Error reading command: %v\n", err)
@@ -39,16 +40,16 @@ func (player *Player) HandleCommand() error {
 	}
 
 	if cmd.Command == "settargetlocation" {
-		var params ParamsReceivedSetTargetLocation
+		var params exsim_commands.ParamsReceivedSetTargetLocation
 		err := json.Unmarshal(cmd.Params, &params)
 		if err != nil {
 			fmt.Printf("Error unmarshaling params: %v", err)
 		}
 		player.Ship.SetTargetLocation(params.Location)
-		player.Connection.Write([]byte(`{"result": "ok"}` + "\n"))
+		// player.Connection.Write([]byte(`{"result": "ok"}` + "\n"))
 	} else {
 		fmt.Printf("Error reading command: %v\n", err)
-		player.Connection.Write([]byte(`{"result": "error"}` + "\n"))
+		// player.Connection.Write([]byte(`{"result": "error"}` + "\n"))
 		return errors.New("unknown command")
 	}
 
