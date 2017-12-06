@@ -37,6 +37,11 @@ func (ship *Ship) SetTargetLocation(loc exsim_commands.Vector3) {
 	ship.commands = append(ship.commands, cmd)
 }
 
+func (ship *Ship) SetAttribute(attr string, value float64) {
+	cmd := exsim_commands.NewSetShipAttributeCommand(ship.Owner, attr, value)
+	ship.commands = append(ship.commands, cmd)
+}
+
 // This should only be called before the ship is added to the solar system.
 func (ship *Ship) SetPosition(pos exsim_commands.Vector3) {
 	ship.Position = pos

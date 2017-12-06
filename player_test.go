@@ -34,9 +34,8 @@ func TestPlayerHandlesSetTargetLocation(t *testing.T) {
 	player.SetShip(ship)
 	player.HandleCommand()
 	conn.Writer.Flush()
-	expected := `{"result": "ok"}` + "\n"
 	result := outputBuffer.String()
-	if result != expected {
-		t.Errorf("Expected '%v', got '%v'", expected, result)
+	if result != "" {
+		t.Errorf("Expected '', got '%v'", result)
 	}
 }

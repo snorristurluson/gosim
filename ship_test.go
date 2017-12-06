@@ -35,6 +35,22 @@ func TestSetTargetLocationCreatesCommand(t *testing.T) {
 	}
 }
 
+func TestSetAttributeCreatesCommand(t *testing.T) {
+	ship := NewShip(1)
+	ship.SetAttribute("sensorrange", 100)
+
+	cmds := ship.GetCommands()
+	if len(cmds) != 1 {
+		t.Errorf("Expected one command, got %v", len(cmds))
+		return
+	}
+
+	cmd := cmds[0]
+	if cmd.Command != "setshipattribute" {
+		t.Errorf("Expected 'setshipattribute', got %v", cmd.Command)
+	}
+}
+
 func TestShipSendState(t *testing.T) {
 	inputBuffer := new(bytes.Buffer)
 	outputBuffer := new(bytes.Buffer)
@@ -68,7 +84,7 @@ func TestShipSendState(t *testing.T) {
 	conn.Writer.Flush()
 	result := outputBuffer.String()
 
-	expected := `{"ships":{"ship_1":{"owner":1,"typeid":1,"position":{"x":1,"y":2,"z":3},"inrange":[2,3]},"ship_2":{"owner":2,"typeid":2,"position":{"x":4,"y":5,"z":6},"inrange":[1,3]},"ship_3":{"owner":3,"typeid":3,"position":{"x":7,"y":8,"z":9},"inrange":[1,2]}}}` + "\n"
+	expected := `{"ships":{"ship_1":{"owner":1,"typeid":1,"position":{"x":1,"y":2,"z":3},"inrange":[2,3],"newinrange":null,"gonefromrange":null},"ship_2":{"owner":2,"typeid":2,"position":{"x":4,"y":5,"z":6},"inrange":[1,3],"newinrange":null,"gonefromrange":null},"ship_3":{"owner":3,"typeid":3,"position":{"x":7,"y":8,"z":9},"inrange":[1,2],"newinrange":null,"gonefromrange":null}}}` + "\n"
 	if result != expected {
 		t.Errorf("Expected '%v', got '%v'", expected, result)
 	}

@@ -39,17 +39,25 @@ func (player *Player) HandleCommand() error {
 		return err
 	}
 
+	fmt.Printf("%v\n", cmd.Command)
 	if cmd.Command == "settargetlocation" {
 		var params exsim_commands.ParamsReceivedSetTargetLocation
 		err := json.Unmarshal(cmd.Params, &params)
 		if err != nil {
-			fmt.Printf("Error unmarshaling params: %v", err)
+			fmt.Printf("Error unmarshaling params: %v\n", err)
+			return err
 		}
 		player.Ship.SetTargetLocation(params.Location)
-		// player.Connection.Write([]byte(`{"result": "ok"}` + "\n"))
+	} else if cmd.Command == "setattribute" {
+		var params exsim_commands.ParamsReceivedSetAttribute
+		err := json.Unmarshal(cmd.Params, &params)
+		if err != nil {
+			fmt.Printf("Error unmarshaling params: %v\n", err)
+			return err
+		}
+		player.Ship.SetAttribute(params.Attribute, params.Value)
 	} else {
 		fmt.Printf("Error reading command: %v\n", err)
-		// player.Connection.Write([]byte(`{"result": "error"}` + "\n"))
 		return errors.New("unknown command")
 	}
 
